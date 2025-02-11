@@ -1,3 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+- my-server-site
+   - pages
+      - index.js
+   - styles
+      - globals.css
+   - package.json
+   - tailwind.config.js
+   - postcss.config.js
