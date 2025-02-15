@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lua Deobfuscator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 60%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .output-container {
+            margin-top: 20px;
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        pre {
+            font-family: Consolas, 'Courier New', monospace;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Lua Deobfuscator</h1>
+        <textarea id="obfuscatedCode" placeholder="Paste obfuscated Lua code here..."></textarea>
+        <button onclick="deobfuscateCode()">Deobfuscate</button>
+        
+        <div class="output-container" id="outputContainer" style="display: none;">
+            <h3>Deobfuscated Code:</h3>
+            <pre id="deobfuscatedCode"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Base64 decoding function
+        function base64Decode(str) {
+            const base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            str = str.replace(/[^A-Za-z0-9\+\/\=]/g, ''); // Removing invalid characters
+            let output = '';
+            let buffer;
+            let i = 0;
+
+            while (i < str.length) {
+                buffer = base64.indexOf(str.charAt(i++)) << 18 |
+                        base64.indexOf(str.charAt(i++)) << 12 |
+                        base64.indexOf(str.charAt(i++)) << 6 |
+                        base64.indexOf(str.charAt(i++));
+                
+                output += String.fromCharCode((buffer >> 16) & 0xFF);
+                if (str.charAt(i - 2) !== '=') {
+                    output += String.fromCharCode((buffer >> 8) & 0xFF);
+                }
+                if (str.charAt(i - 1) !== '=') {
+                    output += String.fromCharCode(buffer & 0xFF);
+                }
+            }
+
+            return output;
+        }
+
+        // Function to decode obfuscated Lua code
+        function decodeObfuscatedStrings(code) {
+            return code.replace(/"([A-Za-z0-9+/=]+)"/g, function(match, encoded) {
+                if (encoded.length % 4 === 0) {
+                    return '"' + base64Decode(encoded) + '"';
+                }
+                return match;
+            });
+        }
+
+        // Main function to deobfuscate Lua code
+        function deobfuscateCode() {
+            let obfuscatedCode = document.getElementById('obfuscatedCode').value;
+            if (!obfuscatedCode) {
+                alert('Please paste obfuscated Lua code first!');
+                return;
+            }
+
+            let deobfuscatedCode = decodeObfuscatedStrings(obfuscatedCode);
+
+            // Display deobfuscated code
+            document.getElementById('deobfuscatedCode').textContent = deobfuscatedCode;
+            document.getElementById('outputContainer').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
